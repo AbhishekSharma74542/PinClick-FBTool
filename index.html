@@ -1,0 +1,475 @@
+<!--The following file is running on node Server -->
+<!--Since the requirement was small I haven't used ROUTING. If having more alteration the routing will be a good option -->
+
+<!DOCTYPE html>
+<html ng-app='myPinClick'>
+    <!--All the scripts to load -->
+	<script src= "http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+	<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/angular-moment/0.9.0/angular-moment.min.js"></script>
+	<link rel="stylesheet" href="http://cdn.rawgit.com/jtblin/angular-chart.js/master/dist/angular-chart.css" type="text/css" />
+	<script src="http://cdn.rawgit.com/nnnick/Chart.js/master/Chart.min.js" type="text/javascript"></script>
+	<script src="http://cdn.rawgit.com/jtblin/angular-chart.js/master/dist/angular-chart.js" type="text/javascript"></script>
+	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">
+	<!--Can be kept in seperate file style.css -->
+	
+	<style>
+		.chart-container{
+			padding-right:25px;
+		}
+		#articleDescription {
+			float-left:30px;
+		}
+		#flatInfo {
+			float:left;
+			margin-right:20px;
+			width : 200px
+		}
+		.label-default{
+			background-color : #cc0000
+		}
+		table tbody tr:nth-child(odd)	{
+			background-color: #CCFFF5;
+			font-family : monospace;
+		}
+		table tbody tr:nth-child(even) {
+			background-color: #33FFD6;
+			font-family : monospace;
+		}
+		table thead tr th{
+			border-bottom:0px;
+			text-align: left;
+			float-left:8px;
+			font-family : monospace;
+			font-weight : bold;
+			font-style : italic;
+		}
+		h1{
+			font-size : xx-large;
+			font-style : italic;
+			font-family : cursive;
+		}
+		#newFeed{
+			float: right;  
+		}
+		.well{
+			white-space : normal;
+			background-color : white;
+		}
+		#graph{
+			padding-right : 20px;
+			width: 250px;
+			border: 2px solid green;
+			margin: 25px;
+		}
+		.red{
+		 color: red;
+		}
+		.orange{
+		 color: orange;
+		}
+		.blue{
+		 color: blue;
+		}
+	</style>
+
+	<body>
+	<div ng-controller = 'myController'>
+		<div class="row">
+		<div class="container" id = "title">
+						<img src="https://media.licdn.com/media/AAEAAQAAAAAAAATxAAAAJGFhNTgwMDcyLTQzOTAtNDBkYi1iZWVmLWQ4YjU4MGIxMmM2MQ.png" class="img-rounded" alt="Cinque Terre" width="1200" height="300"> 
+						<div id = "menu1"class="page-header" style = "text-align : center">
+								<i class="fa fa-facebook-square fa-3x" aria-hidden="true" style="color:#3b5998"></i><h3>Facebook Tool To Find Home Easy !!!</h3><br>
+						</div>
+					</div>
+		
+		</div>
+		
+		
+		<div class="row">
+		
+			<div class="col-sm-3" >
+				<div id = "graph">
+					<canvas id="doughnut" class="chart chart-doughnut"
+						chart-data="popularityData" chart-labels="popularityLabels">
+					</canvas>Graph showing the popularity of diffrent post
+				</div>
+				<div id = "graph">
+					<canvas id="pie" class="chart chart-pie"
+						chart-data="frequencyData" chart-labels="frequencyLabels">
+					</canvas>Graph showing the frequency of diffrent post 
+				</div>
+			</div>
+			<div class="col-sm-1">
+			</div>
+			
+			<div class="col-sm-7">
+				<div class="center-block">
+					
+					
+					
+					<button type="button" class="btn btn-info" style = "background-color : #cc0000" data-toggle="modal" data-target="#myModal" id = "newFeed">Add a new PageId</button>
+					
+					<!-- using ng-repeat to loop over feeds -->
+					<input placeholder = "Search Any Field" ng-model="flatInfo"></input> &nbsp <span class="glyphicon glyphicon-search"></span>
+					<br><br>
+					<div  ng-repeat = "uniqueData in MydataToSend track by $index" class="well">
+					   <div ng-repeat = "flatInfo in uniqueData.finalTypeArray | filter : flatInfo">
+					   <span class="label label-info" id = "flatInfo"><h6><b>{{flatInfo}}</b></h6></span>
+					   </div>
+						<a href={{data.alternate[0].href}}>
+						<div class = "row">   	
+							<div class="col-xs-1 col-md-1"></div>	
+							<div class="col-xs-11 col-md-11">
+								<div>
+								</div>
+								<h5 id = "articleDescription"><br><b><i><div ng-class='whatClassIsIt(uniqueData.finalTypeArray.flatType)'>{{uniqueData.message}}</div></i></b></h5><br><br>
+								<!--Used Moment.JS -->
+								<time am-time-ago={{uniqueData.updated_time}}></time><br>
+								<br>
+								<span class="label label-default" ></span>
+								</a>
+								<hr>
+								
+								<button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#myFeedModal" ng-click = "allMessages(uniqueData.id)">
+									<span class="glyphicon glyphicon-align-justify"></span> Popularity
+								</button>
+							</div>
+						</div>
+						<!-- Modal for displaying extra details of the feed -->
+						<div class="modal fade" id="myFeedModal" role="dialog">
+							<div class="modal-dialog">
+
+								<div class="modal-content" >
+
+									<div class="modal-header">
+										<h5 class="modal-title" id = "articleDescription"><b><i>{{newData.title}}</i></b></h5>
+									</div>
+									<div class="modal-body">
+										<div class = "row">   				
+											<div col-md-2 col-md-2></div>
+											<div col-md-10 col-md-10>
+												<span class="glyphicon glyphicon-heart"></span> Like {{numberOfLikes}} &nbsp &nbsp &nbsp &nbsp &nbsp<span class="glyphicon glyphicon-comment"></span> Comment {{numberOfComments}}
+												&nbsp &nbsp &nbsp &nbsp &nbsp
+												<div ng-repeat = "comment in comments" style = "text-color:red">{{comment.message}} - &nbsp  &nbsp  &nbsp  <i>{{comment.from.name}}</i><br>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="modal-footer">
+										<button data-dismiss="modal">Close</button>
+									</div>
+								</div>
+
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- Modal to add a new feed -->
+				<div class="modal fade" id="myModal" role="dialog">
+					<div class="modal-dialog">
+
+						<!-- Modal content-->
+						<div class="modal-content">
+							<div class="modal-header">
+								<h4 class="modal-title">Add a new feed</h4>
+							</div>
+							<div class="modal-body">
+								<input placeholder = "Enter your PageId" ng-model = "pageID"></input>
+							</div>
+							<div class="modal-footer">
+								<button ng-click = "reload(pageID)">Submit</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+            <div class="col-sm-1"><button ng-click = prev(paging.previous)>Prev</button></div>
+            <div class="col-sm-10"></div>
+            <div class="col-sm-1"><button ng-click = next(paging.next)>Next</button></div>
+			</div>
+		</div>
+
+	</div>
+
+	<script>
+	var app = angular.module('myPinClick', ['angularMoment','chart.js']);
+	//configuring app
+	
+	app.config(['ChartJsProvider', function (ChartJsProvider) {
+     ChartJsProvider.setOptions({
+      colours: ['#FF5252', '#FF8A80'],
+      responsive: false
+    });
+	ChartJsProvider.setOptions('doughnut', {
+      datasetFill: false
+    });
+	ChartJsProvider.setOptions('pie', {
+      datasetFill: false
+    });
+	}])
+	
+	//Designing app controller
+	
+	app.controller('myController', function($http,$scope,$timeout) {
+	    var PageID = '263827920387171';
+		// generating stats graph to give avg popularity in diffrent flatTypes
+		var bodyObject = {};
+		bodyObject.urlToUse = 'https://graph.facebook.com/v2.2/'+PageID+'/feed?access_token=1188261374526073|cU8UWhPPMAKNLosw_lzFMyEm6zQ'
+		$http({
+		method: 'PUT',
+		data : bodyObject,
+		url: 'http://localhost:8082/avgPopularity'
+		}).then(function successCallback(feeds) {
+			popularityLabels = [];
+			popularityData = [];
+			angular.forEach(feeds.data,function(value,key){
+			popularityData.push(value);
+			popularityLabels.push(key);
+			})
+			$scope.popularityData = popularityData;
+			$scope.popularityLabels = popularityLabels;
+		}, function errorCallback(response) {
+			console.log('error');
+			});
+			
+			console.log("coming to graph");
+		
+		// generating stats graph to give avg frequency in diffrent flatTypes
+		var bodyObject = {};
+		bodyObject.urlToUse = 'https://graph.facebook.com/v2.2/'+PageID+'/feed?access_token=1188261374526073|cU8UWhPPMAKNLosw_lzFMyEm6zQ'
+		$http({
+		method: 'PUT',
+		data : bodyObject,
+		url: 'http://localhost:8082/avgFrequency'
+		}).then(function successCallback(feeds) {
+			
+			frequencyLabels = [];
+			frequencyData = [];
+			
+			angular.forEach(feeds.data,function(value,key){
+			frequencyData.push(value);
+			frequencyLabels.push(key);
+			})
+			
+			$scope.frequencyData = [13,4,7];
+			$scope.frequencyLabels = frequencyLabels;
+		}, function errorCallback(response) {
+			console.log('error');
+			});
+		
+		
+		
+		//Generic function to load default page
+		
+		var bodyObject = {};
+		bodyObject.urlToUse = 'https://graph.facebook.com/v2.2/'+PageID+'/feed?access_token=1188261374526073|cU8UWhPPMAKNLosw_lzFMyEm6zQ'
+		$http({
+		method: 'PUT',
+		data : bodyObject,
+		url: 'http://localhost:8082/allFeeds'
+		}).then(function successCallback(feeds) {
+			var x = feeds.data.data.length;
+			for(var i =0;i<x;i++){
+			feeds.data.data[i].updated_time = +new Date(feeds.data.data[i].updated_time); 
+			
+			feeds.data.data[i].finalTypeArray = todetermine(feeds.data.data[i].message);
+			}
+			$scope.MydataToSend = feeds.data.data;
+			$scope.paging = feeds.data.paging;
+		}, function errorCallback(response) {
+			console.log('error');
+			});
+		
+		//function to go to previous page
+		
+		$scope.prev = function(previousURL){
+		var bodyObject = {};
+		bodyObject.urlToUse = previousURL
+		allFeedsCall(bodyObject);
+		}
+		//function to go to previous page
+		
+		$scope.next = function(nextURL){
+		var bodyObject = {};
+		bodyObject.urlToUse = nextURL
+		allFeedsCall(bodyObject);
+		}
+		//function to fetch all comments based on postId
+		
+		$scope.allMessages = function(id){
+		var bodyObject = {};
+		bodyObject.urlToUseForComments = 'https://graph.facebook.com/v2.2/'+id+'/comments?access_token=1188261374526073|cU8UWhPPMAKNLosw_lzFMyEm6zQ'
+		bodyObject.urlToUseForLikes = 'https://graph.facebook.com/v2.2/'+id+'/likes?access_token=1188261374526073|cU8UWhPPMAKNLosw_lzFMyEm6zQ'
+		$http({
+		method: 'PUT',
+		data : bodyObject,
+		url: 'http://localhost:8082/allComments'
+		}).then(function successCallback(feeds) {
+			$scope.numberOfLikes = feeds.data.likesInfo.data.length;
+			$scope.numberOfComments = feeds.data.commentsInfo.data.length;
+			$scope.comments = feeds.data.commentsInfo.data;
+			
+		
+		}, function errorCallback(response) {
+			console.log("Error in get call");
+		});
+		}
+		
+		
+		
+		//generic call to return all feeds
+		
+		var allFeedsCall = function(bodyObject){
+		$http({
+		method: 'PUT',
+		data : bodyObject,
+		url: 'http://localhost:8082/allFeeds'
+		}).then(function successCallback(feeds) {
+		
+			var x = feeds.data.data.length;
+			for(var i =0;i<x;i++){
+			feeds.data.data[i].updated_time = +new Date(feeds.data.data[i].updated_time); 
+			feeds.data.data[i].finalTypeArray = [];
+		
+			feeds.data.data[i].finalTypeArray = todetermine(feeds.data.data[i].message);
+		
+			}
+			$scope.MydataToSend = feeds.data.data;
+			$scope.paging = feeds.data.paging;
+		}, function errorCallback(response) {
+			console.log('error in all feeds call');
+		});
+		}
+	
+	
+	//Generic function to make regex filtering of the message
+	var todetermine = function(input){
+	if(input !== undefined){
+		var finalTypeArray = [];
+		var message = input;
+		var object = {};
+			if(/\bowner\b/.test(message) || /\bOwner\b/.test(message) || /\bOWNER\b/.test(message) 
+			|| /\bowner\n\b/.test(message) || /\b\nowner\b/.test(message)){
+			object.flatType = "owner";
+			};
+			if(/\brent\b/.test(message) || /\bRent\b/.test(message) || /\bRENT\b/.test(message) 
+			|| /\brent\n\b/.test(message) || /\b\nrent\b/.test(message)){
+			object.flatType = "rent";
+			};
+			if(/\bshare\b/.test(message) || /\bShare\b/.test(message) || /\bSHARE\b/.test(message) 
+			|| /\bshare\n\b/.test(message) || /\b\nshare\b/.test(message)){
+			object.flatType = "share";
+			};
+			if(/1 BHK\b/.test(message)){
+			object.flatBHKType = "1 BHK";
+			};
+			if(/2 BHK\b/.test(message)){
+			object.flatBHKType = "2 BHK";
+			};
+			if(/3 BHK\b/.test(message)){
+			object.flatBHKType = "3 BHK";
+			};
+			if((/Male\b/.test(message)) || (/male\b/.test(message))){
+			object.flatRoomMateNeeded = "Male";
+			};
+			if((/Female\b/.test(message)) || (/female\b/.test(message))){
+			object.flatRoomMateNeeded = "Female";
+			};
+			if(/Indira Nagar/.test(message) || /indira Nagar/.test(message) || /indira nagar/.test(message) 
+			|| /Indira nagar/.test(message)){
+			object.areaType = "Indira Nagar";
+			};
+			if(/Marathahalli/.test(message) || /marathahalli/.test(message)){
+			object.areaType = "Marathahalli";
+			};
+			if(/Btm/.test(message) || /btm/.test(message) ||/BTM/.test(message)){
+			object.areaType = "BTM";
+			};
+			if(/JP Nagar/.test(message) || /jp nagar/.test(message) ||/Jp Nagar/.test(message)){
+			object.areaType = "JP Nagar";
+			};
+			if(/Malleswaram/.test(message) || /malleswaram/.test(message)){
+			object.areaType = "Malleswaram";
+			};
+			if(/Koramangala/.test(message) || /koramangala/.test(message)){
+			object.areaType = "Malleswaram";
+			};
+			if(/Hebbal/.test(message) || /hebbal/.test(message)){
+			object.areaType = "Malleswaram";
+			};
+			if(/Jayanagar/.test(message) || /jayanagar/.test(message)){
+			object.areaType = "Malleswaram";
+			};
+			if(/Banashankari/.test(message) || /banashankari/.test(message)){
+			object.areaType = "Malleswaram";
+			};
+			if(/Ulsoor/.test(message) || /ulsoor/.test(message)){
+			object.areaType = "Malleswaram";
+			};
+			if(/Basavanagudi/.test(message) || /basavanagudi/.test(message)){
+			object.areaType = "Malleswaram";
+			};
+			if(/Whitefield/.test(message) || /whitefield/.test(message)){
+			object.areaType = "Malleswaram";
+			};
+			if(/Whitefield/.test(message) || /whitefield/.test(message)){
+			object.areaType = "Malleswaram";
+			};
+			var phoneNumber = message.match(/\b\d{10}\b/);
+			var rent = message.match(/\b\d{5}\b/);
+			if(rent != null){
+			object.PRICE = 'Rs '+ rent[0]; 
+			}
+			var rent = message.match(/\b\d{4}\b/);
+			if(rent != null){
+			object.PRICE = 'Rs '+ rent[0]; 
+			}
+			if(phoneNumber != null){
+			object.phoneNumber = phoneNumber[0]; 
+			}
+			
+		return(object) 
+		}
+	}
+	
+	//Generic Function to reload the page
+		$scope.reload = function(pageID){
+			PageID = pageID;
+			console.log("coming to reload");
+			location.reload();
+		}
+		
+	//Using ng-Class to decide which color for text red -- rent ; orange -- share ; blue -- owner and blue -- default
+	$scope.whatClassIsIt = function(flatType){
+	
+	if(flatType == 'owner'){
+	
+	return 'blue'
+	}
+	if(flatType == 'share'){
+	
+	return 'orange'
+	}
+	if(flatType == 'rent'){
+	
+	return 'red'
+	}
+	if(flatType == undefined){
+	
+	return 'blue'
+	}
+	}	
+	
+	});
+	
+	 
+	</script>
+	</body>
+</html>
+
